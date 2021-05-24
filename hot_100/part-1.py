@@ -106,3 +106,116 @@ class Solution:
             else:
                 right = i - 1
         return (median1 + median2) / 2 if (m + n) % 2 == 0 else median1
+# 4. 最长回文子串
+# Manacher 方法，O(n)
+class Solution:
+    def expand(self, s, left, right):
+        while left >= 0 and right < len(s) and s[left] == s[right]:
+            left -= 1
+            right += 1
+        return (right - left - 2) // 2
+
+    def longestPalindrome(self, s: str) -> str:
+        end, start = -1, 0
+        s = '#' + '#'.join(list(s)) + '#'
+        arm_len = []
+        right = -1
+        j = -1
+        for i in range(len(s)):
+            if right >= i:
+                i_sym = 2 * j - i
+                min_arm_len = min(arm_len[i_sym], right - i)
+                cur_arm_len = self.expand(s, i - min_arm_len, i + min_arm_len)
+            else:
+                cur_arm_len = self.expand(s, i, i)
+            arm_len.append(cur_arm_len)
+            if i + cur_arm_len > right:
+                j = i
+                right = i + cur_arm_len
+            if 2 * cur_arm_len + 1 > end - start:
+                start = i - cur_arm_len
+                end = i + cur_arm_len
+        return s[start+1:end+1:2]
+# 5. 简易正则表达式 . 与 *\
+# 官方解法，O(mn)
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        m, n = len(s), len(p)
+
+        def matches(i: int, j: int) -> bool:
+            if i == 0:
+                return False
+            if p[j - 1] == '.':
+                return True
+            return s[i - 1] == p[j - 1]
+
+        f = [[False] * (n + 1) for _ in range(m + 1)]
+        f[0][0] = True
+        for i in range(m + 1):
+            for j in range(1, n + 1):
+                if p[j - 1] == '*':
+                    f[i][j] |= f[i][j - 2]
+                    if matches(i, j - 1):
+                        f[i][j] |= f[i - 1][j]
+                else:
+                    if matches(i, j):
+                        f[i][j] |= f[i - 1][j - 1]
+        return f[m][n]
+# 6. 盛最多水的容器，柱状图里找两个柱子中间装水，找到最大面积
+# 双指针法，每次移动小的一侧指针，相当于贪婪搜索（可用反证法证明正确）
+class Solution:
+    def maxArea(self, height: List[int]) -> int:
+        l, r = 0, len(height)-1
+        hl, hr = height[l], height[r]
+        step = r - l
+        maxA = 0
+        while l < r:
+            if hl < hr:
+                area = step * hl
+                l += 1
+                hl = height[l]
+            else:
+                area = step * hr
+                r -= 1
+                hr = height[r]
+            if area > maxA:
+                maxA = area
+            step -= 1
+        return maxA
+# 7. 三数之和，全部非重复解 （sum=0）
+# 双指针，跳过重复数值以避免重复解，时间复杂度 O(n^2)
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        n = len(nums)
+        if n < 3:
+            return []
+        nums.sort()
+        res = []
+        nim1 = 1
+        ni = 1
+        for i in range(n - 2):
+            nim1 = ni
+            ni = nums[i]
+            if ni > 0:
+                return res
+            if ni == nim1:
+                continue
+            l = i + 1
+            r = n - 1
+            while l < r:
+                nl = nums[l]
+                nr = nums[r]
+                sumThree = ni + nl + nr
+                if sumThree == 0:
+                    res.append([ni, nl, nr])
+                    while l < r and nl == nums[l + 1]:
+                        l += 1
+                    while l < r and nr == nums[r - 1]:
+                        r -= 1
+                    l = l + 1
+                    r = r - 1
+                elif sumThree > 0:
+                    r -= 1
+                else:
+                    l += 1
+        return res
