@@ -219,3 +219,54 @@ class Solution:
                 else:
                     l += 1
         return res
+# 8. 多链表合并，多个有序链表按升序合并
+# 使用优先队列
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+class LN:
+    def __init__(self, l):
+        self.val = l.val
+        self.next = l.next
+    def __lt__(self, other):
+        return self.val < other.val
+    @staticmethod
+    def back(ln):
+        return ListNode(ln.val, ln.next)
+class Solution:
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        h = []
+        for l in lists:
+            while l:
+                heapq.heappush(h, LN(l))
+                l = l.next
+        if not h:
+            return None
+        head = LN.back(heapq.heappop(h))
+        p = head
+        while h:
+            p.next = LN.back(heapq.heappop(h))
+            p = p.next
+        p.next = None
+        return head
+# 9. 生成下一个字典序数字列表，如果到达最大列表则变成最小字典序（即升序），且只能原地交换位置
+# 官方算法：
+# 1. 从后向前搜索，找到一个连续上升的子序列 nums[i+1:]，而 nums[i] < nums[i+1]
+# 2. 从后向前搜索，找到第一个 k 使得 nums[k] > nums[i]
+# 3. 交换 i 与 k
+# 4. 将 nums[i+1:]进行翻转
+class Solution:
+    def nextPermutation(self, nums: List[int]) -> None:
+        r = len(nums) - 1
+        for l in range(r-1, -1, -1):
+            if nums[l] > nums[l+1]: continue
+            for i in range(r, l, -1):
+                if nums[l] < nums[i]:
+                    nums[i], nums[l], l = nums[l], nums[i], l+1
+                    while l < r:
+                        nums[l] , nums[r] = nums[r] , nums[l]
+                        l += 1
+                        r -= 1
+                    return
+        nums.sort()
