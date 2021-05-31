@@ -270,3 +270,44 @@ class Solution:
                         r -= 1
                     return
         nums.sort()
+# 10. 最大匹配括号长度
+# 栈方法，找到所有匹配括号的位置，排序，最长连续子数列长度就是答案, O(nlgn)
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        if not s:
+            return 0
+        res = []
+        stack = []
+        for i, c in enumerate(s):
+            if c == '(':
+                stack.append(i)
+            elif stack:
+                res.append(stack.pop())
+                res.append(i)
+        res.sort()
+        i = 0
+        ans = 0
+        n = len(res)
+        while i < n:
+            j = i
+            while j < n - 1 and res[j + 1] == res[j] + 1:
+                j += 1
+            ans = max(ans, j - i + 1)
+            i = j + 1
+        return ans
+# DP, O(n)
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        n = len(s)
+        if n == 0: return 0
+        dp = [0] * n
+        res = 0
+        for i in range(n):
+            if i > 0 and s[i] == ")":
+                if  s[i-1] == "(":
+                    dp[i] = dp[i-2] + 2
+                elif s[i-1] == ")" and i - dp[i-1] - 1 >= 0 and s[i - dp[i-1] - 1] == "(":
+                    dp[i] = dp[i-1] + 2 + dp[i - dp[i - 1] - 2]
+                if dp[i] > res:
+                    res = dp[i]
+        return res
