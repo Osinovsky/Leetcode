@@ -72,3 +72,42 @@ class Solution:
             if max_i >= i and i + jump > max_i: 
                 max_i = i + jump
         return max_i >= i
+# 14. 上台阶，一次可以上两个或者一个，求多少种走法
+# DP, f(n) = f(n-1) + f(n-2), O(n)，超时
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        a, b = 1, 1
+        for _ in range(n-1):
+            a, b = b, a + b
+        return b
+# 快速幂，DP展示的公式可以由矩阵连乘表示，将中间的矩阵幂提取出来计算, O(logn)
+class Solution:
+    @staticmethod
+    def mul(a, b):
+        return [
+            a[0] * b[0] + a[1] * b[2],
+            a[0] * b[1] + a[1] * b[3],
+            a[2] * b[0] + a[3] * b[2],
+            a[2] * b[1] + a[3] * b[3]
+        ]
+    @staticmethod
+    def pow(a, n):
+        ret = [1, 0, 0, 1]
+        while n > 0:
+            if n & 1 == 1:
+                ret = Solution.mul(ret, a)
+            n >>= 1
+            a = Solution.mul(a, a)
+        return ret
+
+    def climbStairs(self, n: int) -> int:
+        q = [1, 1, 1, 0]
+        res =  Solution.pow(q, n)
+        return res[0]
+
+# 通项公式，复杂度取决于 pow
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        sqrt5 = math.sqrt(5)
+        fibn = math.pow((1 + sqrt5)/2, n+1) - math.pow((1 - sqrt5)/2, n+1)
+        return round(fibn/sqrt5)
