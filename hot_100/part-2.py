@@ -72,7 +72,72 @@ class Solution:
             if max_i >= i and i + jump > max_i: 
                 max_i = i + jump
         return max_i >= i
-# 14. 最小覆盖子串，给你一个字符串 s 、一个字符串 t 。返回 s 中涵盖 t 所有字符的最小子串。
+# 14. 上台阶，一次可以上两个或者一个，求多少种走法
+# DP, f(n) = f(n-1) + f(n-2), O(n)，超时
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        a, b = 1, 1
+        for _ in range(n-1):
+            a, b = b, a + b
+        return b
+# 快速幂，DP展示的公式可以由矩阵连乘表示，将中间的矩阵幂提取出来计算, O(logn)
+class Solution:
+    @staticmethod
+    def mul(a, b):
+        return [
+            a[0] * b[0] + a[1] * b[2],
+            a[0] * b[1] + a[1] * b[3],
+            a[2] * b[0] + a[3] * b[2],
+            a[2] * b[1] + a[3] * b[3]
+        ]
+    @staticmethod
+    def pow(a, n):
+        ret = [1, 0, 0, 1]
+        while n > 0:
+            if n & 1 == 1:
+                ret = Solution.mul(ret, a)
+            n >>= 1
+            a = Solution.mul(a, a)
+        return ret
+
+    def climbStairs(self, n: int) -> int:
+        q = [1, 1, 1, 0]
+        res =  Solution.pow(q, n)
+        return res[0]
+
+# 通项公式，复杂度取决于 pow
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        sqrt5 = math.sqrt(5)
+        fibn = math.pow((1 + sqrt5)/2, n+1) - math.pow((1 - sqrt5)/2, n+1)
+        return round(fibn/sqrt5)
+# 15. 编辑距离，一个单词经过至少几次增删改到达另一个单词
+# 删相当于目标单词增加，因此三个动作：A增、B增、A改，规定只在单词的末尾增加或者改字母
+# 因为增改的顺序无所谓，因此都规定在词末，方便
+# DP, 二维数组 D[i][j] 表明 A[:i+1] 与 B[:j+1] 的编辑距离
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        n = len(word1)
+        m = len(word2)
+        if n * m == 0:
+            return n + m
+        D = [[0] * (m + 1) for _ in range(n + 1)]
+        # 边界状态初始化
+        for i in range(n + 1):
+            D[i][0] = i # 对比空串，编辑距离就是增加若干字符
+        for j in range(m + 1):
+            D[0][j] = j
+        # 计算所有 DP 值
+        for i in range(1, n + 1):
+            for j in range(1, m + 1):
+                left = D[i - 1][j] + 1
+                down = D[i][j - 1] + 1
+                left_down = D[i - 1][j - 1] 
+                if word1[i - 1] != word2[j - 1]:
+                    left_down += 1
+                D[i][j] = min(left, down, left_down)
+        return D[n][m]
+# 15. 最小覆盖子串，给你一个字符串 s 、一个字符串 t 。返回 s 中涵盖 t 所有字符的最小子串。
 # 滑动窗口
 class Solution:
     def minWindow(self, s: str, t: str) -> str:
