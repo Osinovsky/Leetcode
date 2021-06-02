@@ -111,3 +111,29 @@ class Solution:
         sqrt5 = math.sqrt(5)
         fibn = math.pow((1 + sqrt5)/2, n+1) - math.pow((1 - sqrt5)/2, n+1)
         return round(fibn/sqrt5)
+# 15. 编辑距离，一个单词经过至少几次增删改到达另一个单词
+# 删相当于目标单词增加，因此三个动作：A增、B增、A改，规定只在单词的末尾增加或者改字母
+# 因为增改的顺序无所谓，因此都规定在词末，方便
+# DP, 二维数组 D[i][j] 表明 A[:i+1] 与 B[:j+1] 的编辑距离
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        n = len(word1)
+        m = len(word2)
+        if n * m == 0:
+            return n + m
+        D = [[0] * (m + 1) for _ in range(n + 1)]
+        # 边界状态初始化
+        for i in range(n + 1):
+            D[i][0] = i # 对比空串，编辑距离就是增加若干字符
+        for j in range(m + 1):
+            D[0][j] = j
+        # 计算所有 DP 值
+        for i in range(1, n + 1):
+            for j in range(1, m + 1):
+                left = D[i - 1][j] + 1
+                down = D[i][j - 1] + 1
+                left_down = D[i - 1][j - 1] 
+                if word1[i - 1] != word2[j - 1]:
+                    left_down += 1
+                D[i][j] = min(left, down, left_down)
+        return D[n][m]
