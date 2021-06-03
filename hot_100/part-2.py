@@ -137,7 +137,7 @@ class Solution:
                     left_down += 1
                 D[i][j] = min(left, down, left_down)
         return D[n][m]
-# 15. 最小覆盖子串，给你一个字符串 s 、一个字符串 t 。返回 s 中涵盖 t 所有字符的最小子串。
+# 16. 最小覆盖子串，给你一个字符串 s 、一个字符串 t 。返回 s 中涵盖 t 所有字符的最小子串。
 # 滑动窗口
 class Solution:
     def minWindow(self, s: str, t: str) -> str:
@@ -165,4 +165,20 @@ class Solution:
                 needCnt += 1
                 i+=1
         return '' if res[1] > len(s) else s[res[0]:res[1]+1]
+# 17. 最大矩型，给一个柱形图，找到柱子能包含的最大长方形
+# 单调栈 + 常数优化，O(n)
+# 单调栈记录高度上升的趋势, left and right 记录该柱子的左右边界
+class Solution:
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        n = len(heights)
+        left, right = [0] * n, [n] * n
+        mono_stack = list()
+        for i in range(n):
+            while mono_stack and heights[mono_stack[-1]] >= heights[i]:
+                right[mono_stack[-1]] = i
+                mono_stack.pop()
+            left[i] = mono_stack[-1] if mono_stack else -1
+            mono_stack.append(i)
+        ans = max((right[i] - left[i] - 1) * heights[i] for i in range(n)) if n > 0 else 0
+        return ans
 
