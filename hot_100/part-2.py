@@ -181,4 +181,39 @@ class Solution:
             mono_stack.append(i)
         ans = max((right[i] - left[i] - 1) * heights[i] for i in range(n)) if n > 0 else 0
         return ans
+# 18. 最大矩形，给一个二维0/1图，判断图中最大全1矩阵的面积
+# 单调栈，对于每一列当作求直方图最大矩形
+class Solution:
+    def maximalRectangle(self, matrix: List[List[str]]) -> int:
+        if not matrix:
+            return 0
+        m = len(matrix)
+        n = len(matrix[0])
+        left = [[0]*n for _ in range(m)]
 
+        for i in range(m):
+            for j in range(n):
+                if matrix[i][j] == '1':
+                    left[i][j] = 1 if j == 0 else left[i][j-1] + 1
+
+        ret = 0
+        for j in range(n):
+            up = [0] * m
+            down = [0] * m
+            stk = []
+            for i in range(m):
+                while stk and left[stk[-1]][j] >= left[i][j]:
+                    stk.pop()
+                up[i] = -1 if not stk else stk[-1]
+                stk.append(i)
+            stk = []
+            for i in range(m-1, -1, -1):
+                while stk and left[stk[-1]][j] >= left[i][j]:
+                    stk.pop()
+                down[i] = m if not stk else stk[-1]
+                stk.append(i)
+            for i in range(m):
+                height = down[i] - up[i] - 1
+                area = height * left[i][j]
+                ret = max(ret, area)
+        return ret
