@@ -217,4 +217,19 @@ class Solution:
                 area = height * left[i][j]
                 ret = max(ret, area)
         return ret
-# some thing
+# 19. 前序中序构建二叉树
+# 前序：mid + [left] + [right]，中序：[left] + mid + [right]
+# 所以用前序[0]就能在中序中找到左右子序列，并将前序按相应尺寸分割
+class Solution:
+    @staticmethod
+    def recur(preorder, inorder):
+        if not preorder and not inorder:
+            return None
+        node = TreeNode(preorder[0])
+        mid = inorder.index(preorder[0])
+        left = mid - 1
+        node.left = Solution.recur(preorder[1:mid+1], inorder[:mid])
+        node.right = Solution.recur(preorder[mid+1:], inorder[mid+1:])
+        return node
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> TreeNode:
+        return Solution.recur(preorder, inorder)
