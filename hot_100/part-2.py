@@ -233,3 +233,19 @@ class Solution:
         return node
     def buildTree(self, preorder: List[int], inorder: List[int]) -> TreeNode:
         return Solution.recur(preorder, inorder)
+# 20. 二叉树最大路径和，可以不经过根节点
+# 递归：探查左右子树，将左右子树中转本节点形成的路径更新最大路径，再返回选择某一子树经过本节点的最大路径
+class Solution:
+    def recur(self, curr):
+        if not curr:
+            return 0
+        leftGain = max(self.recur(curr.left), 0)
+        rightGain = max(self.recur(curr.right), 0)
+        pathSum = leftGain+rightGain+curr.val
+        self.maxSum = max(pathSum, self.maxSum)
+        return curr.val + max(leftGain, rightGain)
+
+    def maxPathSum(self, root: TreeNode) -> int:
+        self.maxSum = float('-inf')
+        self.recur(root)
+        return int(self.maxSum)
