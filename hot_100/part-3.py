@@ -36,3 +36,24 @@ class Solution:
             slow = slow.next
             fast = fast.next.next
         return True
+# 24. 最小残石，给一堆石头，每两块互碰，等重则一起消失，不等则剩下大的减小的，问最小能剩多少
+# DP, 分为两堆，寻找差值最小的分法, dp[i+1][j] 表示 stones[:i+1] 是否能凑出重量 j
+class Solution:
+    def lastStoneWeightII(self, stones: List[int]) -> int:
+        total = sum(stones)
+        n, m = len(stones), total // 2
+        dp = [[False] * (m + 1) for _ in range(n + 1)]
+        dp[0][0] = True
+
+        for i in range(n):
+            for j in range(m + 1):
+                if j < stones[i]:
+                    dp[i + 1][j] = dp[i][j]
+                else:
+                    dp[i + 1][j] = dp[i][j] or dp[i][j - stones[i]]
+        ans = None
+        for j in range(m, -1, -1):
+            if dp[n][j]:
+                ans = total - 2 * j
+                break
+        return ans
