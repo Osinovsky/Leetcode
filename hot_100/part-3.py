@@ -149,4 +149,72 @@ class Solution:
                 return 2
         # bottom case from the three-square theorem
         return 3
+# 38. 最长上升子序列
+# DP，O(n^2)
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        if not nums:
+            return 0
+        dp = []
+        for i in range(len(nums)):
+            dp.append(1)
+            for j in range(i):
+                if nums[i] > nums[j]:
+                    dp[i] = max(dp[i], dp[j] + 1)
+        return max(dp)
+# 贪心+二分，贪心寻找上升最慢的数列，更新时使用二分查找，O(logn)
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        d = []
+        for n in nums:
+            if not d or n > d[-1]:
+                d.append(n)
+            else:
+                l, r = 0, len(d) - 1
+                loc = r
+                while l <= r:
+                    mid = (l + r) // 2
+                    if d[mid] >= n:
+                        loc = mid
+                        r = mid - 1
+                    else:
+                        l = mid + 1
+                d[loc] = n
+        return len(d)
+# 39. 删除无效括号，返回所有结果
+# 搜索，首先统计左右括号需要去掉多少，然后决定每一步是否去掉左/右括号，注意增加右括号需要判定是否左>右，否则会产生无效解
+class Solution:
+    @staticmethod
+    def DFS(i, lc, rc, lrm, rrm, s, n, path, result):
+        while i < n and s[i] != '(' and s[i] != ')':
+            path += s[i]
+            i += 1
+        if i == n:
+            if lrm == 0 and rrm == 0:
+                result.add(path)
+            return
+        if s[i] == '(':
+            if lrm > 0:
+                Solution.DFS(i+1, lc, rc, lrm-1, rrm, s, n, path, result)
+            Solution.DFS(i+1, lc+1, rc, lrm, rrm, s, n, path+'(', result)
+        elif s[i] == ')':
+            if rrm > 0:
+                Solution.DFS(i+1, lc, rc, lrm, rrm-1, s, n, path, result)
+            if lc > rc:
+                Solution.DFS(i+1, lc, rc+1, lrm, rrm, s, n, path+')', result)
+        
+    def removeInvalidParentheses(self, s: str) -> List[str]:
+        lrm, rrm = 0, 0
+        for c in s:
+            if c == '(':
+                lrm += 1
+            elif c == ')':
+                if lrm > 0:
+                    lrm -= 1
+                else:
+                    rrm += 1
+        result = set()
+        path = ''
+        Solution.DFS(0, 0, 0, lrm, rrm, s, len(s), path, result)
+        return list(result)
 
