@@ -1,4 +1,4 @@
-# is power of 4?
+# 1. is power of 4?
 # log
 class Solution:
     def isPowerOfFour(self, n: int) -> bool:
@@ -14,3 +14,11 @@ class Solution:
 class Solution:
     def isPowerOfFour(self, n: int) -> bool:
         return n > 0 and (n & (n - 1)) == 0 and n % 3 == 1
+# 2. 找零, DP
+class Solution:
+    def change(self, amount: int, coins: List[int]) -> int:
+        D = [1] * (amount+1)
+        for coin in coins:
+            for i in range(coin, amount+1):
+                D[i] += D[i-coin]
+        return D[amount]

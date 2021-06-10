@@ -217,4 +217,18 @@ class Solution:
         path = ''
         Solution.DFS(0, 0, 0, lrm, rrm, s, len(s), path, result)
         return list(result)
+# 40. 股票+冷冻期，抛完股票冷却一天
+# DP
 
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        if not prices:
+            return 0        
+        n = len(prices)
+        f0, f1, f2 = -prices[0], 0, 0
+        for i in range(1, n):
+            newf0 = max(f0, f2 - prices[i])
+            newf1 = f0 + prices[i]
+            newf2 = max(f1, f2)
+            f0, f1, f2 = newf0, newf1, newf2        
+        return max(f1, f2)
