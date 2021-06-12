@@ -184,3 +184,18 @@ class Solution:
             sumlist = [num + root.val for num in sumlist] + [root.val]
             return sumlist.count(sum) + dfs(root.left, sumlist) + dfs(root.right, sumlist)
         return dfs(root, [])
+# 48. 目标和，给定数列，加入加减号，问有多少种方法达到目标和
+# 动态规划，O(n*(sum-target))
+# sum = neg + pos, pos - neg = target => neg = (sum - target) // 2
+class Solution:
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+        d = sum(nums) - target
+        if d < 0 or d % 2 != 0:
+            return 0
+        neg = d // 2
+        dp = [0] * (neg+1)
+        dp[0] = 1
+        for n in nums:
+            for j in range(neg, n-1, -1):
+                dp[j] += dp[j-n]
+        return dp[neg]
