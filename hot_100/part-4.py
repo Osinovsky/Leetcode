@@ -77,3 +77,110 @@ class Solution:
         for i in range(1, n + 1):
             bits.append(bits[i & (i - 1)] + 1)
         return bits
+# 44.  除法求值, 给一些分数，求查询的分数值，没有则返回-1 （路径正反向搜索或者并查集）
+# 并查集
+class UnionFind:
+    def __init__(self):
+        self.father = {}
+        self.value = {}
+    
+    def find(self,x):
+        root = x
+        base = 1
+        while self.father[root] != None:
+            root = self.father[root]
+            base *= self.value[root]
+        while x != root:
+            original_father = self.father[x]
+            self.value[x] *= base
+            base /= self.value[original_father]
+            self.father[x] = root
+            x = original_father
+        return root
+    
+    def merge(self,x,y,val):
+        root_x,root_y = self.find(x),self.find(y)
+        if root_x != root_y:
+            self.father[root_x] = root_y
+            self.value[root_x] = self.value[y] * val / self.value[x]
+
+    def is_connected(self,x,y):
+        return x in self.value and y in self.value and self.find(x) == self.find(y)
+    
+    def add(self,x):
+        if x not in self.father:
+            self.father[x] = None
+            self.value[x] = 1.0
+class Solution:
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        uf = UnionFind()
+        for (a,b),val in zip(equations,values):
+            uf.add(a)
+            uf.add(b)
+            uf.merge(a,b,val)
+        res = [-1.0] * len(queries)
+        for i,(a,b) in enumerate(queries):
+            if uf.is_connected(a,b):
+                res[i] = uf.value[a] / uf.value[b]
+        return res
+# 45. 根据身高重建队列，给数列[[h, k]], h为当前身高，k 为前面有多少高于当前身高的，重建队列
+# 从低到高考虑，O(n^2)
+class Solution:
+    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
+        people.sort(key=lambda x: (x[0], -x[1]))
+        n = len(people)
+        ans = [[] for _ in range(n)]
+        for person in people:
+            spaces = person[1] + 1
+            for i in range(n):
+                if not ans[i]:
+                    spaces -= 1
+                    if spaces == 0:
+                        ans[i] = person
+                        break
+        return ans
+# 从高到低考虑，矮的人不会影响前面高的排好的顺序，因此可以插入，O(n^2)
+class Solution:
+    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
+        people.sort(key=lambda x: (-x[0], x[1]))
+        n = len(people)
+        ans = list()
+        for person in people:
+            ans[person[1]:person[1]] = [person]
+        return ans
+# 46. 分割等和子集，给定一组数，问能否正好分割成两个和相等的集合
+# 0-1背包问题，恰好等于一半，O(n target)
+# dij 指的是[0,...,i]满足和为j，当 j >= ni 时 dij = di-1j or di-1j-ni, j < ni 时，dij = di-1j
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        n = len(nums)
+        if n < 2:
+            return False
+        total = sum(nums)
+        maxNum = max(nums)
+        if total & 1:
+            return False
+        target = total // 2
+        if maxNum > target:
+            return False
+        dp = [[0] * (target + 1) for _ in range(n)]
+        for i in range(n):
+            dp[i][0] = True
+        dp[0][nums[0]] = True
+        for i in range(1, n):
+            num = nums[i]
+            for j in range(1, target + 1):
+                if j >= num:
+                    dp[i][j] = dp[i - 1][j] | dp[i - 1][j - num]
+                else:
+                    dp[i][j] = dp[i - 1][j]
+        return dp[n - 1][target]
+# 47. 路径总和 III，一棵树上找到路径之和为目标的所有路径个数
+# DFS，维持所有sumList
+class Solution:
+    def pathSum(self, root: TreeNode, sum: int) -> int:
+        def dfs(root, sumlist):
+            if root is None: return 0
+            sumlist = [num + root.val for num in sumlist] + [root.val]
+            return sumlist.count(sum) + dfs(root.left, sumlist) + dfs(root.right, sumlist)
+        return dfs(root, [])
